@@ -25,6 +25,20 @@ pipeline {
             }
         }
          
+		stage ("Sonar Analysis") {
+            environment {
+               scannerHome = tool 'sonarQubescanner'
+            }
+            steps {
+                echo '<--------------- Sonar Analysis started  --------------->'
+                withSonarQubeEnv('SonarServer') {
+                    sh "${scannerHome}/bin/sonar-scanner"
+                }    
+                echo '<--------------- Sonar Analysis stopped  --------------->'
+            }   
+        }    
+        
+		
 		stage(" Docker Build ") {
           steps {
             script {
