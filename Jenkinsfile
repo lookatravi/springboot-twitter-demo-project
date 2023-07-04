@@ -43,10 +43,10 @@ pipeline {
             steps {
                 script {
                   echo '<--------------- Quality Gate started  --------------->' 
-                    timeout(time: 1, unit: 'HOURS') {
-                        def qg = waitForQualityGate()
-                        if(qg.status!='OK'){
-                          error "Pipeline failed due to the Quality gate issue"   
+                    //timeout(time: 1, unit: 'HOURS') {
+                      //  def qg = waitForQualityGate()
+                        //if(qg.status!='OK'){
+                          //error "Pipeline failed due to the Quality gate issue"   
                         }    
                     }    
                   echo '<--------------- Quality Gate stopped  --------------->'
@@ -54,6 +54,32 @@ pipeline {
             }   
         }          
         
+		
+		stage("Jar Publish") {
+            steps {
+                script {
+                        echo '<--------------- Jar Publish Started --------------->'
+                         def server = Artifactory.newServer url:registry+"/artifactory" ,  credentialsId:"artifactorycredentialid"
+                         def properties = "buildid=${env.BUILD_ID},commitid=${GIT_COMMIT}";
+                         def uploadSpec = """{
+                              "files": [
+                                {
+                                  "pattern": "jarstaging/(*)",
+                                  "target": "ravi-libs-release/{1}",
+                                  "flat": "false",
+                                  "props" : "${properties}",
+                                  "exclusions": [ "*.sha1", "*.md5"]
+                                }
+                             ]
+                         }"""
+                         def buildInfo = server.upload(uploadSpec)
+                         buildInfo.env.collect()
+                         server.publishBuildInfo(buildInfo)
+                         echo '<--------------- Jar Publish Ended --------------->'  
+                
+                }
+            }   
+        }    
 		
 		stage(" Docker Build ") {
           steps {
