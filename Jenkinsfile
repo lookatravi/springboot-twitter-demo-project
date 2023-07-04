@@ -65,6 +65,18 @@ pipeline {
             }   
         }    
 		
+		stage (" Docker Publish "){
+            steps {
+                script {
+                   echo '<--------------- Docker Publish Started --------------->'  
+                    docker.withRegistry(registry, 'dockercredentialid'){
+                        app.push()
+                    }    
+                   echo '<--------------- Docker Publish Ended --------------->'  
+                }
+            }
+        }
+		
 		stage(" Docker Build ") {
           steps {
             script {
