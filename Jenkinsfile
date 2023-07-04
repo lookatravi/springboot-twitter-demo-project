@@ -5,7 +5,7 @@ def app
 pipeline {
     agent {
        node {
-         label "master
+         label "master"
       }
     }
     stages {
